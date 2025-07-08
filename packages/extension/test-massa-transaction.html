@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Massa Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Massa Transaction Flow</h1>
+    
+    <div class="test-section">
+        <h2>1. Check if Enkrypt is available</h2>
+        <button onclick="checkEnkrypt()">Check Enkrypt</button>
+        <div id="enkrypt-status" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Connect to Massa Provider</h2>
+        <button onclick="connectMassa()">Connect to Massa</button>
+        <div id="massa-connection" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Set Network</h2>
+        <button onclick="setNetwork('Massa')">Set to Mainnet</button>
+        <button onclick="setNetwork('MassaBuildnet')">Set to Buildnet</button>
+        <button onclick="getCurrentNetwork()">Get Current Network</button>
+        <div id="network-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Get Accounts</h2>
+        <button onclick="getAccounts()">Get Accounts</button>
+        <div id="accounts-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Get Balance</h2>
+        <label for="balance-address">Address:</label>
+        <input type="text" id="balance-address" placeholder="Enter address to check balance">
+        <button onclick="getBalance()">Get Balance</button>
+        <div id="balance-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Send Transaction</h2>
+        <label for="from-address">From Address:</label>
+        <input type="text" id="from-address" placeholder="From address">
+        <label for="to-address">To Address:</label>
+        <input type="text" id="to-address" placeholder="To address">
+        <label for="amount">Amount (in base units):</label>
+        <input type="text" id="amount" placeholder="1000000000" value="1000000000">
+        <label for="fee">Fee (in base units):</label>
+        <input type="text" id="fee" placeholder="10000000" value="10000000">
+        <button onclick="sendTransaction()">Send Transaction</button>
+        <div id="transaction-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>7. Clear Logs</h2>
+        <button onclick="clearLogs()">Clear All Logs</button>
+    </div>
+
+    <script>
+        let massaProvider = null;
+
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `[${timestamp}] ${message}\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearLogs() {
+            const logElements = document.querySelectorAll('.log');
+            logElements.forEach(element => {
+                element.innerHTML = '';
+            });
+        }
+
+        async function checkEnkrypt() {
+            try {
+                log('enkrypt-status', 'Checking if Enkrypt is available...');
+                
+                if (typeof window.enkrypt !== 'undefined') {
+                    log('enkrypt-status', '✅ Enkrypt is available');
+                    log('enkrypt-status', `Enkrypt version: ${window.enkrypt.version || 'unknown'}`);
+                    
+                    if (window.enkrypt.providers && window.enkrypt.providers.massa) {
+                        log('enkrypt-status', '✅ Massa provider is available');
+                    } else {
+                        log('enkrypt-status', '❌ Massa provider is not available');
+                    }
+                } else {
+                    log('enkrypt-status', '❌ Enkrypt is not available');
+                    log('enkrypt-status', 'Please install Enkrypt extension and refresh the page');
+                }
+            } catch (error) {
+                log('enkrypt-status', `❌ Error checking Enkrypt: ${error.message}`);
+            }
+        }
+
+        async function connectMassa() {
+            try {
+                log('massa-connection', 'Connecting to Massa provider...');
+                
+                if (typeof window.massa !== 'undefined') {
+                    massaProvider = window.massa;
+                    log('massa-connection', '✅ Massa provider found');
+                    log('massa-connection', `Provider object: ${JSON.stringify(massaProvider, null, 2)}`);
+                    
+                    // Check if connect method exists
+                    if (typeof massaProvider.connect === 'function') {
+                        log('massa-connection', '✅ Connect method found');
+                        
+                        // Try to connect
+                        log('massa-connection', 'Calling connect() method...');
+                        const result = await massaProvider.connect();
+                        log('massa-connection', `✅ Connected to Massa: ${JSON.stringify(result)}`);
+                    } else {
+                        log('massa-connection', '❌ Connect method not found');
+                        log('massa-connection', `Available methods: ${Object.getOwnPropertyNames(massaProvider)}`);
+                    }
+                } else {
+                    log('massa-connection', '❌ Massa provider not found');
+                    log('massa-connection', 'Make sure Enkrypt is installed and Massa provider is enabled');
+                    
+                    // Check what's available on window
+                    log('massa-connection', `Window objects: ${Object.keys(window).filter(key => key.includes('massa') || key.includes('enkrypt'))}`);
+                }
+            } catch (error) {
+                log('massa-connection', `❌ Error connecting to Massa: ${error.message}`);
+                log('massa-connection', `Error stack: ${error.stack}`);
+                
+                // Try to get more details about the error
+                if (error.result) {
+                    log('massa-connection', `Error result: ${JSON.stringify(error.result)}`);
+                }
+                if (error.error) {
+                    log('massa-connection', `Error details: ${JSON.stringify(error.error)}`);
+                }
+            }
+        }
+
+        async function setNetwork(networkName) {
+            try {
+                log('network-result', `Setting network to: ${networkName}`);
+                
+                if (!massaProvider) {
+                    log('network-result', '❌ Massa provider not connected. Please connect first.');
+                    return;
+                }
+                
+                if (typeof massaProvider.setNetwork === 'function') {
+                    const result = await massaProvider.setNetwork(networkName);
+                    log('network-result', `✅ Network set successfully: ${JSON.stringify(result, null, 2)}`);
+                } else {
+                    log('network-result', '❌ setNetwork method not found');
+                    log('network-result', `Available methods: ${Object.getOwnPropertyNames(massaProvider)}`);
+                }
+            } catch (error) {
+                log('network-result', `❌ Error setting network: ${error.message}`);
+                if (error.stack) {
+                    log('network-result', `Stack trace: ${error.stack}`);
+                }
+            }
+        }
+
+        async function getCurrentNetwork() {
+            try {
+                log('network-result', 'Getting current network...');
+                
+                if (!massaProvider) {
+                    log('network-result', '❌ Massa provider not connected. Please connect first.');
+                    return;
+                }
+                
+                if (typeof massaProvider.getNetwork === 'function') {
+                    const network = await massaProvider.getNetwork();
+                    log('network-result', `✅ Current network: ${network}`);
+                } else {
+                    log('network-result', '❌ getNetwork method not found');
+                }
+            } catch (error) {
+                log('network-result', `❌ Error getting network: ${error.message}`);
+            }
+        }
+
+        async function getAccounts() {
+            try {
+                log('accounts-result', 'Getting accounts...');
+                
+                if (!massaProvider) {
+                    log('accounts-result', '❌ Massa provider not connected. Please connect first.');
+                    return;
+                }
+                
+                const accounts = await massaProvider.getAccounts();
+                log('accounts-result', `✅ Accounts: ${JSON.stringify(accounts, null, 2)}`);
+            } catch (error) {
+                log('accounts-result', `❌ Error getting accounts: ${error.message}`);
+            }
+        }
+
+        async function getBalance() {
+            try {
+                const address = document.getElementById('balance-address').value;
+                if (!address) {
+                    log('balance-result', '❌ Please enter an address');
+                    return;
+                }
+                
+                log('balance-result', `Getting balance for address: ${address}`);
+                
+                if (!massaProvider) {
+                    log('balance-result', '❌ Massa provider not connected. Please connect first.');
+                    return;
+                }
+                
+                const balance = await massaProvider.getBalance(address);
+                log('balance-result', `✅ Balance: ${balance}`);
+            } catch (error) {
+                log('balance-result', `❌ Error getting balance: ${error.message}`);
+            }
+        }
+
+        async function sendTransaction() {
+            try {
+                const fromAddress = document.getElementById('from-address').value;
+                const toAddress = document.getElementById('to-address').value;
+                const amount = document.getElementById('amount').value;
+                const fee = document.getElementById('fee').value;
+                
+                if (!fromAddress || !toAddress || !amount) {
+                    log('transaction-result', '❌ Please fill in all required fields');
+                    return;
+                }
+                
+                log('transaction-result', 'Sending transaction...');
+                log('transaction-result', `From: ${fromAddress}`);
+                log('transaction-result', `To: ${toAddress}`);
+                log('transaction-result', `Amount: ${amount}`);
+                log('transaction-result', `Fee: ${fee}`);
+                
+                if (!massaProvider) {
+                    log('transaction-result', '❌ Massa provider not connected. Please connect first.');
+                    return;
+                }
+                
+                const transactionParams = {
+                    from: fromAddress,
+                    to: toAddress,
+                    amount: amount,
+                    fee: fee
+                };
+                
+                log('transaction-result', `Transaction params: ${JSON.stringify(transactionParams, null, 2)}`);
+                
+                const result = await massaProvider.sendTransaction(transactionParams);
+                log('transaction-result', `✅ Transaction result: ${JSON.stringify(result, null, 2)}`);
+            } catch (error) {
+                log('transaction-result', `❌ Error sending transaction: ${error.message}`);
+                if (error.stack) {
+                    log('transaction-result', `Stack trace: ${error.stack}`);
+                }
+            }
+        }
+
+        // Auto-check Enkrypt on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkEnkrypt, 1000);
+        });
+    </script>
+</body>
+</html> 

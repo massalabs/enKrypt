@@ -13,6 +13,8 @@ const sign = (
     });
   const msgHash = message.params[0] as `0x${string}`;
   const account = message.params[1] as EnkryptAccount;
+  console.log('🟡 [SIGN] msgHash:', msgHash);
+  console.log('🟡 [SIGN] account:', account);
   return keyring
     .sign(msgHash, account)
     .then(sig => {
