@@ -4,7 +4,6 @@ import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 
-
 const unitZeroOptions: EvmNetworkOptions = {
   name: NetworkNames.UnitZero,
   name_long: 'Unit Zero',

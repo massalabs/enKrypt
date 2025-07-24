@@ -21,9 +21,9 @@ export default async (
 ): Promise<NFTCollection[]> => {
   if (network.name !== NetworkNames.Conflux)
     throw new Error('Conflux: network not supported');
-  let allItems: NFTCollection[] = [];
+  const allItems: NFTCollection[] = [];
 
-  let nftBalances: ConfluxResponse = await cacheFetch(
+  const nftBalances: ConfluxResponse = await cacheFetch(
     {
       url: `${CONFLUX_ENDPOINT}/nft/balances?owner=${address}&skip=0&limit=100`,
     },
@@ -33,16 +33,16 @@ export default async (
     return [];
   }
 
-  for (let collection of nftBalances.result
+  for (const collection of nftBalances.result
     .list as unknown as NFTBalanceItem[]) {
-    let contract = collection.contract;
+    const contract = collection.contract;
 
-    let items = await getCollectionItems(contract, address);
+    const items = await getCollectionItems(contract, address);
     if (!items.length) {
       continue;
     }
 
-    let nftCollection: NFTCollection = {
+    const nftCollection: NFTCollection = {
       name: collection.name,
       image: collection.iconUrl || '',
       description: items[0].description,
@@ -59,7 +59,7 @@ async function getCollectionItems(
   contract: string,
   address: string,
 ): Promise<NFTItemWithDesc[]> {
-  let itemResponse: ConfluxResponse = await cacheFetch(
+  const itemResponse: ConfluxResponse = await cacheFetch(
     {
       url: `${CONFLUX_ENDPOINT}/nft/tokens?contract=${contract}&owner=${address}&skip=0&limit=100&withBrief=${true}&withMetadata=${true}&suppressMetadataError=${true}`,
     },
@@ -69,7 +69,7 @@ async function getCollectionItems(
   if (itemResponse.status !== '1') {
     return [];
   }
-  let items: ConfluxNFTItem[] = itemResponse.result
+  const items: ConfluxNFTItem[] = itemResponse.result
     .list as unknown as ConfluxNFTItem[];
 
   return items.map(item => ({
