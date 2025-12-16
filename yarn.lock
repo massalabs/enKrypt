@@ -1686,7 +1686,7 @@ __metadata:
     rollup-plugin-visualizer: "npm:^6.0.3"
     semver: "npm:^7.7.2"
     switch-ts: "npm:^1.1.1"
-    systeminformation: "npm:^5.27.3"
+    systeminformation: "npm:^5.27.14"
     tsup: "npm:^8.5.0"
     typescript: "npm:~5.8.3"
     url: "npm:^0.11.4"
@@ -28510,12 +28510,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"systeminformation@npm:^5.27.3":
-  version: 5.27.3
-  resolution: "systeminformation@npm:5.27.3"
+"systeminformation@npm:^5.27.14":
+  version: 5.27.14
+  resolution: "systeminformation@npm:5.27.14"
   bin:
     systeminformation: lib/cli.js
-  checksum: 10/73b0ccdc978ba5e9183c7b3b132de4ea0f3b3d62dfe659208413b9797f99fb465ea6f70f2918a7291d7ad88a7ded3a330aa81314ffaf01e67e0466a18fe777b5
+  checksum: 10/bf8194000e1a4af47acf16a9bc41b715dbd6bde15cb09dc52626f8c8d77ebc1c62b939343ae153b7cbc08486c5d841128019bfe4e5d71c42c14e1089a32c97a1
   conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
